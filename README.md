@@ -1,73 +1,62 @@
 # 说明
 
-用于 mqtt 与 pulsar 的压力测试工具，发布消息到 emqx，消费 pulsar 中的消息
+用于 mqtt 的压力测试工具
 
-时间：2023-05-22
+时间：2023-05-27
 
 作者：hellcox
 
 版本：0.0.1
 
-# 使用示例
+# 使用说明
 
-mss_emqx_tool -[key] [val]
+./tool_xxx -[key] [val]  或  go run main.go -[key] [val]
+
+可直接源码执行或者编译成可执行文件后执行压测
+
+
 
 # 参数说明
 
 ```
--a string
-      action:         执行动作：produce/consume
--b int
-      burst:          令牌桶容量 (default 10000)
--e string
-      ext:            额外参数
-                      action=produce,ext=special
--h string
-      host:           主机地址
--l int
-      burst:          输出日志
--lc int
-      burst:          输出统计日志
--n int
-      num:            数量
--nc int
-      num client:     客户端数量 (default 1)
--ng int
-      num go:         协程数量 (default 100)
--r int
-      rate:           每秒生成消息量 (default 1)
--t string
-      topic:          主题
+  -addr string
+        localAddress   指定源IP
+  -cc int
+        clientNum      客户端数量 (default 1)
+  -cr int
+        clientRate     客户端创建速度/秒 (default 1)
+  -h string
+        host           主机地址
+  -n int
+        node           节点编号，不指定则随机生成，可能出现碰撞
+  -p int
+        port           端口号 (default 1883)
+  -pmc int
+        pubMsgNum      发布消息总数量
+  -pr int
+        pubRate        发布消息速率/秒 (default 1)
+  -pt string
+        pubTopic       发布的主题，空则不发布，支持变量，如：/app/<node-len-i-num>/pub
+                       其中i表示index递增，node为节点id，num表示向几个topic发消息
+  -qos int
+        qos            Qos等级 (default 1)
+  -ssl
+        openSsl        是否启用ssl
+  -st string
+        subTopic       订阅的主题，空则不订阅，支持变量，如：/app/<len-i>/sub
+  -t string
+        subTopic       主题
+  -v int
+        mqttVersion    MQTT版本 (default 3)
 ```
 
 # 使用DEMO
 
-生产
-go run main.go -a produce -h 127.0.0.1:1883 -nc 20 -n 0 -r 100 -b 10000 -e special -l 1 -t fw/pub/cloud/nack
+模拟设备，每个链接订阅一个topic
 
-消费
-go run main.go -a consume -h pulsar://pulsar-cluster-dev.meross.dev.vpc:6650 -e special -t persistent:
-//meross/iot_raw/q_emqx_online
+go run main.go -cr 20 -cc 500 -h host.docker.internal -p 1883 -addr 172.18.0.3 -st /appliance/{32-i}/subscribe -n 123
 
-## 常用CLI
+模拟APP，每个链接向5个设备发布消息
 
-```
-一直生产消息，直到接收到退出信号
-go run main.go -a produce -h 127.0.0.1:1883 -nc 20 -n 0 -r 100 -b 10000 -e special -l 1 -t fw/pub/cloud/nack
+go run main.go -cr 10 -cc 100 -h host.docker.internal -p 1883 -addr 172.18.0.3 -pt /appliance/{123-32-i-5}/subscribe
 
-生产固定条数消息
-go run main.go -a produce -h 127.0.0.1:1883 -nc 20 -n 9999 -r 100 -b 10000 -e special -l 1 -t fw/pub/cloud/nack
-
-生产特殊消息，主要用于测试消息时延
-go run .\main.go -a produce -h 127.0.0.1:1883 -nc 1 -n 0 -r 1 -b 2 -e special -l 1 -t fw/pub/cloud/nack
-
-消费并输出该消息
-go run main.go -a consume -h pulsar://pulsar-cluster-dev.meross.dev.vpc:6650 -t persistent://meross/iot_raw/q_emqx_stat_msg -l 1
-
-消费并输出消费数量
-go run main.go -a consume -h pulsar://pulsar-cluster-dev.meross.dev.vpc:6650 -t persistent://meross/iot_raw/q_emqx_stat_msg -lc 1
-
-消费特殊消息并统计平均时延（接受到退出信号输出统计信息）
-go run main.go -a consume -h pulsar://pulsar-cluster-dev.meross.dev.vpc:6650 -e special -t persistent://meross/iot_raw/q_emqx_stat_msg -lc 1
-
-```
