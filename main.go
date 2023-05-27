@@ -14,27 +14,26 @@ import (
 	"time"
 )
 
-// produce：生成EMQX消息，go run .\main.go -a produce -h 127.0.0.1:1883 -nc 20 -n 0 -r 100 -b 10000 -e special -l 1 -t fw/pub/cloud/nack
-// consume：消费Pulsal消息, go run main.go -a consume -h pulsar://pulsar-cluster-dev.meross.dev.vpc:6650 -e special -t persistent://meross/iot_raw/q_emqx_online
-
 func main() {
 	//action := flag.String("a", "", "Action:\t\t执行动作e")
 	host := flag.String("h", "", fmt.Sprintf("%-15s%s", "host", "主机地址"))
 	topic := flag.String("t", "", fmt.Sprintf("%-15s%s", "subTopic", "主题"))
-	pubRate := flag.Int("pr", 1, fmt.Sprintf("%-15s%s", "pubRate", "发布消息速率/秒"))
-	pubMsgCount := flag.Int("pmc", 0, fmt.Sprintf("%-15s%s", "pubMsgNum", "发布消息总数量"))
-	// /appliance/<32-i>/publish  /app/10500882-appid/subscribe  /appliance/<32-i>/subscribe
-	pubTopic := flag.String("pt", "", fmt.Sprintf("%-15s%s\n%-15s%s", "pubTopic", "发布的主题，空则不发布，支持变量，如：/app/<node-len-i-num>/pub", "", "其中i表示index递增，node为节点id，num表示向几个topic发消息"))
-	// /appliance/<32-i>/subscribe /app/<8-i>-appid/subscribe
-	subTopic := flag.String("st", "", fmt.Sprintf("%-15s%s", "subTopic", "订阅的主题，空则不订阅，支持变量，如：/app/<len-i>/sub"))
-	clientCount := flag.Int("cc", 1, fmt.Sprintf("%-15s%s", "clientNum", "客户端数量"))
-	clientRate := flag.Int("cr", 1, fmt.Sprintf("%-15s%s", "clientRate", "客户端创建速度/秒"))
 	addr := flag.String("addr", "", fmt.Sprintf("%-15s%s", "localAddress", "指定源IP"))
 	qos := flag.Int("qos", 1, fmt.Sprintf("%-15s%s", "qos", "Qos等级"))
 	version := flag.Int("v", 3, fmt.Sprintf("%-15s%s", "mqttVersion", "MQTT版本"))
 	useSsl := flag.Bool("ssl", false, fmt.Sprintf("%-15s%s", "openSsl", "是否启用ssl"))
 	port := flag.Int("p", 1883, fmt.Sprintf("%-15s%s", "port", "端口号"))
 	node := flag.Int("n", 0, fmt.Sprintf("%-15s%s", "node", "节点编号，不指定则随机生成，可能出现碰撞"))
+
+	pubRate := flag.Int("pr", 1, fmt.Sprintf("%-15s%s", "pubRate", "发布消息速率/秒"))
+	pubMsgCount := flag.Int("pmc", 0, fmt.Sprintf("%-15s%s", "pubMsgNum", "发布消息总数量"))
+	pubTopic := flag.String("pt", "", fmt.Sprintf("%-15s%s\n%-15s%s", "pubTopic", "发布的主题，空则不发布，支持变量，如：/app/<node-len-i-num>/pub", "", "其中i表示index递增，node为节点id，num表示向几个topic发消息"))
+
+	subTopic := flag.String("st", "", fmt.Sprintf("%-15s%s", "subTopic", "订阅的主题，空则不订阅，支持变量，如：/app/<len-i>/sub"))
+
+	clientCount := flag.Int("cc", 1, fmt.Sprintf("%-15s%s", "clientNum", "客户端数量"))
+	clientRate := flag.Int("cr", 1, fmt.Sprintf("%-15s%s", "clientRate", "客户端创建速度/秒"))
+
 	//解析命令行参数写入注册的flag里
 	flag.Parse()
 	request := &model.Request{
