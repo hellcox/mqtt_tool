@@ -30,7 +30,7 @@
   -p int
         port           端口号 (default 1883)
   -pmc int
-        pubMsgNum      发布消息总数量
+        pubMsgNum      发布消息总数量(未来)
   -pr int
         pubRate        发布消息速率/秒 (default 1)
   -pt string
@@ -43,7 +43,7 @@
   -st string
         subTopic       订阅的主题，空则不订阅，支持变量，如：/app/{len-i}/sub
   -t string
-        subTopic       主题
+        subTopic       主题(未来)
   -v int
         mqttVersion    MQTT版本 (default 3)
 ```
