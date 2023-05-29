@@ -34,14 +34,14 @@
   -pr int
         pubRate        发布消息速率/秒 (default 1)
   -pt string
-        pubTopic       发布的主题，空则不发布，支持变量，如：/app/<node-len-i-num>/pub
+        pubTopic       发布的主题，空则不发布，支持变量，如：/app/{node-len-i-num}/pub
                        其中i表示index递增，node为节点id，num表示向几个topic发消息
   -qos int
         qos            Qos等级 (default 1)
   -ssl
         openSsl        是否启用ssl
   -st string
-        subTopic       订阅的主题，空则不订阅，支持变量，如：/app/<len-i>/sub
+        subTopic       订阅的主题，空则不订阅，支持变量，如：/app/{len-i}/sub
   -t string
         subTopic       主题
   -v int
