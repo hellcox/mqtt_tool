@@ -14,7 +14,7 @@ func Init(req model.Request) {
 	go toolemqx.LogConnCount()
 	for i := 0; i < req.ClientCount*2; i++ {
 		_ = toolemqx.ConnLimiter.Wait(ctx)
-		if toolemqx.ConnSize > int64(req.ClientCount) {
+		if toolemqx.ConnSize >= int64(req.ClientCount) {
 			toolemqx.ConnLimiter.SetBurst(0)
 			toolemqx.ConnLimiter.SetLimit(0)
 			return

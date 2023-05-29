@@ -65,6 +65,7 @@ func Start(ctx context.Context, req model.Request, index int64) {
 			IP: net.ParseIP(req.LocalAddress),
 		},
 	})
+	opts.SetConnectTimeout(10 * time.Second)
 	client := mqtt.NewClient(opts)
 	token := client.Connect()
 	token.Wait()
