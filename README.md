@@ -26,7 +26,7 @@
   -h string
         host           主机地址
   -n int
-        node           节点编号，不指定则随机生成，可能出现碰撞
+        node           节点编号(0-999)，不指定则随机生成，可能出现碰撞
   -p int
         port           端口号 (default 1883)
   -pmc int
