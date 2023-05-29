@@ -43,12 +43,8 @@ func InitSubPoolNum(size int) {
 	}
 }
 
-func Start(ctx context.Context, req model.Request, index int64) {
-	if req.Host == "" {
-		panic("参数错误：host")
-	}
-
-	idx := fmt.Sprintf("node-%010d", index)
+func conn(ctx context.Context, req model.Request, index int64) (mqtt.Client, error) {
+	idx := fmt.Sprintf("%s-%010d", req.Node, index)
 	host := fmt.Sprintf("%s:%d", req.Host, req.Port)
 	if req.UseSsl {
 		host = "ssl://" + host
@@ -65,18 +61,42 @@ func Start(ctx context.Context, req model.Request, index int64) {
 			IP: net.ParseIP(req.LocalAddress),
 		},
 	})
-	opts.SetConnectTimeout(10 * time.Second)
+	opts.SetConnectTimeout(5 * time.Second)
 	client := mqtt.NewClient(opts)
 	token := client.Connect()
 	token.Wait()
 	if token.Error() != nil {
-		atomic.AddInt64(&ConnFailSize, 1)
 		LastErr = token.Error()
-		return
+		return nil, token.Error()
+	}
+	return client, nil
+}
+
+func Start(ctx context.Context, req model.Request, index int64) {
+	if req.Host == "" {
+		panic("参数错误：host")
 	}
 
-	// 通过链接数确定PUB速率
 	nowConnSize := atomic.AddInt64(&ConnSize, 1)
+	// 建立连接，失败继续重试
+	client, err := conn(ctx, req, index)
+	if err != nil {
+		LastErr = err
+		for i := 1; i < 20; i++ {
+			client, err = conn(ctx, req, index)
+			if err == nil {
+				break
+			} else {
+				LastErr = err
+			}
+		}
+		// 重试N次还是失败，统计失败数
+		if client == nil {
+			atomic.AddInt64(&ConnFailSize, 1)
+			return
+		}
+	}
+	// 通过链接数确定PUB速率
 	_ = nowConnSize
 	if nowConnSize == int64(req.ClientCount) {
 		InitPubLimiter(req.PubRate)
@@ -224,7 +244,7 @@ func LogConnCount() {
 			Pub, PubFail := PubSize, PubFailSize
 			fmt.Println(fmt.Sprintf("[%s] conn=%d,%d/s,fail=%d; sub=%d,fail=%d; pubMsg=%d,%d/s,fail=%d; subMsg=%d, lastErr=%v",
 				time.Now().Format("2006-01-02 15:04:05"),
-				Conn, Conn-ConnSizeOri, ConnFail,
+				Conn-ConnFail, Conn-ConnSizeOri, ConnFail,
 				Sub, SubFail,
 				Pub, Pub-PubSizeOri, PubFail,
 				SubMsgSize,
