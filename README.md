@@ -58,5 +58,5 @@ go run main.go -cr 20 -cc 500 -h host.docker.internal -p 1883 -addr 172.18.0.3 -
 
 模拟APP，每个链接向5个设备发布消息
 
-go run main.go -cr 10 -cc 100 -h host.docker.internal -p 1883 -addr 172.18.0.3 -pt /appliance/{123-32-i-5}/subscribe
+go run main.go -cr 10 -cc 100 -h host.docker.internal -p 1883 -addr 172.18.0.3 -pt /appliance/{123-32-i-5}/subscribe -pr 500
 
