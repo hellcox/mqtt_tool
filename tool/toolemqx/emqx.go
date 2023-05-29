@@ -131,6 +131,7 @@ func Start(ctx context.Context, req model.Request, index int64) {
 		topicArr := strings.Split(oriTopic, "{")
 		pubNum := 1 // PUB数量
 		var arr []string
+		isVar := false
 		if len(topicArr) == 3 {
 			// {node-lenAll-rule-num}={node-32-i-4}  num 为映射的数量
 			arr = strings.Split(topicArr[1], "-")
@@ -142,6 +143,7 @@ func Start(ctx context.Context, req model.Request, index int64) {
 				if num > 1 {
 					pubNum = num
 				}
+				isVar = true
 			}
 		}
 
@@ -170,9 +172,11 @@ func Start(ctx context.Context, req model.Request, index int64) {
 		// 向N个topic发布消息
 		for i := 0; i < pubNum; i++ {
 			pubIndex := atomic.AddInt64(&PubIndex, 1)
-			lenAll, _ := strconv.Atoi(arr[1])
-			length := strconv.Itoa(lenAll - len(req.Node))
-			req.PubTopic = fmt.Sprintf(topicArr[0]+arr[0]+"%0"+length+"d"+topicArr[2], pubIndex)
+			if isVar {
+				lenAll, _ := strconv.Atoi(arr[1])
+				length := strconv.Itoa(lenAll - len(req.Node))
+				req.PubTopic = fmt.Sprintf(topicArr[0]+arr[0]+"%0"+length+"d"+topicArr[2], pubIndex)
+			}
 			go pubFunc(req.PubTopic, PubIndex)
 		}
 		//log.Warn("1111111-", PubLimiter.Tokens())
