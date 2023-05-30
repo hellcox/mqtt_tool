@@ -32,7 +32,7 @@
   -pmc int
         pubMsgNum      发布消息总数量(未来)
   -pr int
-        pubRate        发布消息速率/秒 (default 1)
+        pubRate        发布消息速率，间隔n毫秒 (default 1000)
   -pt string
         pubTopic       发布的主题，空则不发布，支持变量，如：/app/{node-len-i-num}/pub
                        其中i表示index递增，node为节点id，num表示向几个topic发消息

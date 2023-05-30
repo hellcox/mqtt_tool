@@ -25,7 +25,7 @@ func main() {
 	port := flag.Int("p", 1883, fmt.Sprintf("%-15s%s", "port", "端口号"))
 	node := flag.Int("n", 0, fmt.Sprintf("%-15s%s", "node", "节点编号，不指定则随机生成，可能出现碰撞"))
 
-	pubRate := flag.Int("pr", 1, fmt.Sprintf("%-15s%s", "pubRate", "发布消息速率/秒"))
+	pubRate := flag.Int("pr", 1000, fmt.Sprintf("%-15s%s", "pubRate", "发布消息速率，间隔n毫秒"))
 	pubMsgCount := flag.Int("pmc", 0, fmt.Sprintf("%-15s%s", "pubMsgNum", "发布消息总数量"))
 	pubTopic := flag.String("pt", "", fmt.Sprintf("%-15s%s\n%-15s%s", "pubTopic", "发布的主题，空则不发布，支持变量，如：/app/{node-len-i-num}/pub", "", "其中i表示index递增，node为节点id，num表示向几个topic发消息"))
 

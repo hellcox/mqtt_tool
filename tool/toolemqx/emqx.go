@@ -5,6 +5,7 @@ import (
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"golang.org/x/time/rate"
+	"math"
 	"net"
 	"pulsar-demo/model"
 	"pulsar-demo/tool/queue"
@@ -61,15 +62,20 @@ func conn(ctx context.Context, req model.Request, index int64) (mqtt.Client, err
 			IP: net.ParseIP(req.LocalAddress),
 		},
 	})
+	opts.SetKeepAlive(30 * time.Second)
 	opts.SetConnectTimeout(5 * time.Second)
-	client := mqtt.NewClient(opts)
-	token := client.Connect()
+	c := mqtt.NewClient(opts)
+	token := c.Connect()
 	token.Wait()
+	//if token := c.Connect(); token.Wait() && token.Error() != nil {
+	//	LastErr = token.Error()
+	//	return nil, token.Error()
+	//}
 	if token.Error() != nil {
 		LastErr = token.Error()
 		return nil, token.Error()
 	}
-	return client, nil
+	return c, nil
 }
 
 func Start(ctx context.Context, req model.Request, index int64) {
@@ -108,6 +114,7 @@ func Start(ctx context.Context, req model.Request, index int64) {
 
 	// 订阅
 	go func() {
+		time.Sleep(time.Second)
 		if req.SubTopic != "" {
 			// 按变量规则生成topic，只支持一个变量
 			oriTopic := strings.ReplaceAll(req.SubTopic, "}", "{")
@@ -143,6 +150,7 @@ func Start(ctx context.Context, req model.Request, index int64) {
 
 	// 发布
 	go func() {
+		time.Sleep(time.Second)
 		if req.PubTopic == "" || req.PubRate == 0 {
 			return
 		}
@@ -167,17 +175,14 @@ func Start(ctx context.Context, req model.Request, index int64) {
 			}
 		}
 
-		pubFunc := func(topic string, idx int64) {
-			if idx == 1 {
-				fmt.Println("OneOfPubTopic=" + topic)
-			}
+		pubFunc := func(topic string, idx int64, sleepTime int) {
+
 			for true {
-				//ctx2, _ := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(math.Round(200)+100))
-				//err := PubLimiter.Wait(ctx2)
-				//if err != nil {
-				//	return
-				//}
-				_ = PubLimiter.Wait(context.Background())
+				if sleepTime == 0 {
+					sleepTime = 1000
+				}
+
+				//_ = PubLimiter.Wait(context.Background())
 				msgNow := time.Now()
 				msg := fmt.Sprintf(`{"header":{"messageId":"f612fb49845bee6191ea05e1548aa7a2","namespace":"Appliance.Control.ToggleX","triggerSrc":"CloudAlexa","method":"PUSH","payloadVersion":1,"from":"/appliance/2201208098807451860148e1e986b2fb/publish","uuid":"2201208098807451860148e1e986b2fb","timestamp":1673925167,"timestampMs":749,"sign":"2e4375b4631d573499dd0b0585cee295"},"payload":{"channel":0,"togglex":{"channel":0,"onoff":1,"lmTime":%d}},"mss-test":"%s-%d"}`, msgNow.Unix(), idx, msgNow.UnixNano())
 				pubToken := client.Publish(topic, byte(req.Qos), false, msg)
@@ -187,17 +192,30 @@ func Start(ctx context.Context, req model.Request, index int64) {
 					return
 				}
 				atomic.AddInt64(&PubSize, 1)
+				start := time.Now()
+				_ = start
+				time.Sleep(time.Duration(sleepTime) * time.Millisecond)
+				//fmt.Print(sleepTime, "-", time.Now().Sub(start))
 			}
 		}
 		// 向N个topic发布消息
 		for i := 0; i < pubNum; i++ {
 			pubIndex := atomic.AddInt64(&PubIndex, 1)
+			sleepTime := req.PubRate * pubNum
+			realTime := sleepTime
+			//fmt.Println("sleep", realTime)
 			if isVar {
 				lenAll, _ := strconv.Atoi(arr[1])
 				length := strconv.Itoa(lenAll - len(req.Node))
-				req.PubTopic = fmt.Sprintf(topicArr[0]+arr[0]+"%0"+length+"d"+topicArr[2], pubIndex)
+				nodeInt, _ := strconv.Atoi(arr[0])
+				node := fmt.Sprintf("%03d", nodeInt)
+				req.PubTopic = fmt.Sprintf(topicArr[0]+node+"%0"+length+"d"+topicArr[2], pubIndex)
 			}
-			go pubFunc(req.PubTopic, PubIndex)
+			if pubIndex == 1 {
+				fmt.Println("OneOfPubTopic=" + req.PubTopic)
+			}
+			time.Sleep(time.Duration(math.Round(float64(req.PubRate))) * time.Millisecond)
+			go pubFunc(req.PubTopic, PubIndex, realTime)
 		}
 		//log.Warn("1111111-", PubLimiter.Tokens())
 	}()
