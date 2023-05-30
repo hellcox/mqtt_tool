@@ -67,10 +67,6 @@ func conn(ctx context.Context, req model.Request, index int64) (mqtt.Client, err
 	c := mqtt.NewClient(opts)
 	token := c.Connect()
 	token.Wait()
-	//if token := c.Connect(); token.Wait() && token.Error() != nil {
-	//	LastErr = token.Error()
-	//	return nil, token.Error()
-	//}
 	if token.Error() != nil {
 		LastErr = token.Error()
 		return nil, token.Error()
@@ -84,6 +80,7 @@ func Start(ctx context.Context, req model.Request, index int64) {
 	}
 
 	nowConnSize := atomic.AddInt64(&ConnSize, 1)
+	_ = nowConnSize
 	// 建立连接，失败继续重试
 	client, err := conn(ctx, req, index)
 	if err != nil {
@@ -101,15 +98,6 @@ func Start(ctx context.Context, req model.Request, index int64) {
 			atomic.AddInt64(&ConnFailSize, 1)
 			return
 		}
-	}
-	// 通过链接数确定PUB速率
-	_ = nowConnSize
-	if nowConnSize == int64(req.ClientCount) {
-		InitPubLimiter(req.PubRate)
-	} else if nowConnSize%50 == 0 {
-		prePubRate := float64(req.PubRate) / float64(req.ClientCount)
-		PubRate := float64(nowConnSize) * prePubRate
-		InitPubLimiter(int(PubRate))
 	}
 
 	// 订阅
@@ -182,7 +170,6 @@ func Start(ctx context.Context, req model.Request, index int64) {
 					sleepTime = 1000
 				}
 
-				//_ = PubLimiter.Wait(context.Background())
 				msgNow := time.Now()
 				msg := fmt.Sprintf(`{"header":{"messageId":"f612fb49845bee6191ea05e1548aa7a2","namespace":"Appliance.Control.ToggleX","triggerSrc":"CloudAlexa","method":"PUSH","payloadVersion":1,"from":"/appliance/2201208098807451860148e1e986b2fb/publish","uuid":"2201208098807451860148e1e986b2fb","timestamp":1673925167,"timestampMs":749,"sign":"2e4375b4631d573499dd0b0585cee295"},"payload":{"channel":0,"togglex":{"channel":0,"onoff":1,"lmTime":%d}},"mss-test":"%s-%d"}`, msgNow.Unix(), idx, msgNow.UnixNano())
 				pubToken := client.Publish(topic, byte(req.Qos), false, msg)
