@@ -23,7 +23,7 @@ func main() {
 	version := flag.Int("v", 3, fmt.Sprintf("%-15s%s", "mqttVersion", "MQTT版本"))
 	useSsl := flag.Bool("ssl", false, fmt.Sprintf("%-15s%s", "openSsl", "是否启用ssl"))
 	port := flag.Int("p", 1883, fmt.Sprintf("%-15s%s", "port", "端口号"))
-	node := flag.Int("n", 0, fmt.Sprintf("%-15s%s", "node", "节点编号，不指定则随机生成，可能出现碰撞"))
+	node := flag.Int("n", 0, fmt.Sprintf("%-15s%s", "node", "节点编号，不指定则随机生成，可能出现碰撞，范围 1~999"))
 
 	pubRate := flag.Int("pr", 1000, fmt.Sprintf("%-15s%s", "pubRate", "发布消息速率，间隔n毫秒"))
 	//pubMsgCount := flag.Int("pmc", 0, fmt.Sprintf("%-15s%s", "pubMsgNum", "发布消息总数量"))
