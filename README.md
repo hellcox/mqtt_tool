@@ -21,22 +21,20 @@
 # 参数说明
 
 ```
-  -addr string                                                 
-        localAddress   指定源IP                                
-  -cc int                                                      
-        clientNum      客户端数量 (default 1)                  
-  -cr int                                                      
-        clientRate     客户端创建速度/秒 (default 1)           
-  -h string                                                    
-        host           主机地址                                
-  -n int                                                       
+  -addr string                                      
+        localAddress   指定源IP                     
+  -cc int                                           
+        clientNum      客户端数量 (default 1)       
+  -cr int                                           
+        clientRate     客户端创建速度/秒 (default 1)
+  -h string                                         
+        host           主机地址                     
+  -n int                                            
         node           节点编号，不指定则随机生成，可能出现碰撞
-  -p int                                                       
+  -p int
         port           端口号 (default 1883)
-  -pmc int
-        pubMsgNum      发布消息总数量
   -pms int
-        pubMsgSize     发布消息的长度，不填则使用默认消息
+        pubMsgSize     发布消息的字符数，不填则使用默认消息，如填2则字符串为aa
   -pr int
         pubRate        发布消息速率，间隔n毫秒 (default 1000)
   -pt string
@@ -50,7 +48,6 @@
         subTopic       订阅的主题，空则不订阅，支持变量，如：/app/{len-i}/sub
   -v int
         mqttVersion    MQTT版本 (default 3)
-
 ```
 
 # 使用DEMO

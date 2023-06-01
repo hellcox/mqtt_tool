@@ -17,7 +17,7 @@ import (
 func main() {
 	//action := flag.String("a", "", "Action:\t\t执行动作e")
 	host := flag.String("h", "", fmt.Sprintf("%-15s%s", "host", "主机地址"))
-	topic := flag.String("t", "", fmt.Sprintf("%-15s%s", "subTopic", "主题"))
+	//topic := flag.String("t", "", fmt.Sprintf("%-15s%s", "subTopic", "主题"))
 	addr := flag.String("addr", "", fmt.Sprintf("%-15s%s", "localAddress", "指定源IP"))
 	qos := flag.Int("qos", 1, fmt.Sprintf("%-15s%s", "qos", "Qos等级"))
 	version := flag.Int("v", 3, fmt.Sprintf("%-15s%s", "mqttVersion", "MQTT版本"))
@@ -26,9 +26,9 @@ func main() {
 	node := flag.Int("n", 0, fmt.Sprintf("%-15s%s", "node", "节点编号，不指定则随机生成，可能出现碰撞"))
 
 	pubRate := flag.Int("pr", 1000, fmt.Sprintf("%-15s%s", "pubRate", "发布消息速率，间隔n毫秒"))
-	pubMsgCount := flag.Int("pmc", 0, fmt.Sprintf("%-15s%s", "pubMsgNum", "发布消息总数量"))
+	//pubMsgCount := flag.Int("pmc", 0, fmt.Sprintf("%-15s%s", "pubMsgNum", "发布消息总数量"))
 	pubTopic := flag.String("pt", "", fmt.Sprintf("%-15s%s\n%-15s%s", "pubTopic", "发布的主题，空则不发布，支持变量，如：/app/{node-len-i-num}/pub", "", "其中i表示index递增，node为节点id，num表示向几个topic发消息"))
-	pubMsgSize := flag.Int("pms", 0, fmt.Sprintf("%-15s%s", "pubMsgSize", "发布消息的长度，不填则使用默认消息"))
+	pubMsgSize := flag.Int("pms", 0, fmt.Sprintf("%-15s%s", "pubMsgSize", "发布消息的字符数，不填则使用默认消息，如填2则字符串为aa"))
 
 	subTopic := flag.String("st", "", fmt.Sprintf("%-15s%s", "subTopic", "订阅的主题，空则不订阅，支持变量，如：/app/{len-i}/sub"))
 
@@ -39,20 +39,20 @@ func main() {
 	flag.Parse()
 	request := &model.Request{
 		//Action:       *action,
-		Host:         *host,
-		Topic:        *topic,
+		Host: *host,
+		//Topic:        *topic,
 		LocalAddress: *addr,
 		ClientCount:  *clientCount,
 		ClientRate:   *clientRate,
 		PubRate:      *pubRate,
-		PubMsgCount:  *pubMsgCount,
-		UseSsl:       *useSsl,
-		Qos:          *qos,
-		Version:      *version,
-		Port:         *port,
-		PubTopic:     *pubTopic,
-		SubTopic:     *subTopic,
-		MsgSize:      *pubMsgSize,
+		//PubMsgCount:  *pubMsgCount,
+		UseSsl:   *useSsl,
+		Qos:      *qos,
+		Version:  *version,
+		Port:     *port,
+		PubTopic: *pubTopic,
+		SubTopic: *subTopic,
+		MsgSize:  *pubMsgSize,
 	}
 	if *node == 0 {
 		rand.Seed(time.Now().UnixNano())
