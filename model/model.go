@@ -16,6 +16,7 @@ type Request struct {
 	PubTopic     string
 	SubTopic     string
 	Node         string
+	IsStartPub   bool //是否已经开始PUB
 }
 
 type NormalMsg struct {
