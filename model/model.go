@@ -16,7 +16,8 @@ type Request struct {
 	PubTopic     string
 	SubTopic     string
 	Node         string
-	IsStartPub   bool //是否已经开始PUB
+	IsStartPub   bool // 是否已经开始PUB
+	MsgSize      int  // 自动生成消息的长度
 }
 
 type NormalMsg struct {

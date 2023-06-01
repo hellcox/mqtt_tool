@@ -118,14 +118,16 @@ func Publish(client mqtt.Client, req *model.Request) {
 		}
 	}
 
-	pubFunc := func(topic string, idx int64, sleepTime int) {
-		//fmt.Println("pub", topic)
+	pubFunc := func(topic string, idx int64, sleepTime int, createMsg string) {
+		msg := createMsg
 		for true {
 			if sleepTime == 0 {
 				sleepTime = 1000
 			}
-			msgNow := time.Now()
-			msg := fmt.Sprintf(`{"header":{"messageId":"f612fb49845bee6191ea05e1548aa7a2","namespace":"Appliance.Control.ToggleX","triggerSrc":"CloudAlexa","method":"PUSH","payloadVersion":1,"from":"/appliance/2201208098807451860148e1e986b2fb/publish","uuid":"2201208098807451860148e1e986b2fb","timestamp":1673925167,"timestampMs":749,"sign":"2e4375b4631d573499dd0b0585cee295"},"payload":{"channel":0,"togglex":{"channel":0,"onoff":1,"lmTime":%d}},"mss-test":"%s-%d"}`, msgNow.Unix(), idx, msgNow.UnixNano())
+			if msg == "" {
+				msgNow := time.Now()
+				msg = fmt.Sprintf(`{"header":{"messageId":"f612fb49845bee6191ea05e1548aa7a2","namespace":"Appliance.Control.ToggleX","triggerSrc":"CloudAlexa","method":"PUSH","payloadVersion":1,"from":"/appliance/2201208098807451860148e1e986b2fb/publish","uuid":"2201208098807451860148e1e986b2fb","timestamp":1673925167,"timestampMs":749,"sign":"2e4375b4631d573499dd0b0585cee295"},"payload":{"channel":0,"togglex":{"channel":0,"onoff":1,"lmTime":%d}},"mss-test":"%v-%d"}`, msgNow.Unix(), idx, msgNow.UnixNano())
+			}
 			pubToken := client.Publish(topic, byte(req.Qos), false, msg)
 			pubToken.Wait()
 			if pubToken.Error() != nil {
@@ -137,6 +139,10 @@ func Publish(client mqtt.Client, req *model.Request) {
 			_ = start
 			time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 		}
+	}
+	createMsg := ""
+	if req.MsgSize > 0 {
+		createMsg = strings.Repeat("a", req.MsgSize)
 	}
 	// 向N个topic发布消息
 	for i := 0; i < pubNum; i++ {
@@ -151,7 +157,7 @@ func Publish(client mqtt.Client, req *model.Request) {
 			req.PubTopic = fmt.Sprintf(topicArr[0]+node+"%0"+length+"d"+topicArr[2], pubIndex)
 		}
 		time.Sleep(time.Duration(math.Round(float64(req.PubRate))) * time.Millisecond)
-		go pubFunc(req.PubTopic, PubIndex, realTime)
+		go pubFunc(req.PubTopic, PubIndex, realTime, createMsg)
 	}
 }
 
