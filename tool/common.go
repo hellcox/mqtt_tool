@@ -2,7 +2,6 @@ package tool
 
 import (
 	"context"
-	"fmt"
 	"pulsar-demo/model"
 	"pulsar-demo/tool/toolemqx"
 	"time"
@@ -18,7 +17,6 @@ func Init(req model.Request) {
 			// chan消耗完毕则阻塞
 			<-toolemqx.ClientRateList
 			idx++
-			fmt.Println("fff", idx)
 			if idx > req.ClientCount {
 				// 调用消耗chan逻辑，避免重连成功后写入chan时导致阻塞
 				go outChan()
