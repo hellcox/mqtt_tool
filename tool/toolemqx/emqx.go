@@ -48,6 +48,7 @@ func Conn(ctx context.Context, req model.Request, index int64) (mqtt.Client, err
 			IP: net.ParseIP(req.LocalAddress),
 		},
 	})
+	opts.SetAutoReconnect(true)
 	opts.SetKeepAlive(30 * time.Second)
 	opts.SetConnectTimeout(5 * time.Second)
 	opts.SetMaxReconnectInterval(time.Duration(10) * time.Millisecond)
@@ -61,7 +62,9 @@ func Conn(ctx context.Context, req model.Request, index int64) (mqtt.Client, err
 	opts.SetConnectionLostHandler(func(client mqtt.Client, err error) {
 		LastErr = errors.New("lost conn")
 		atomic.AddInt64(&ConnSize, -1)
-		atomic.AddInt64(&Sub, -1)
+		if Sub > 0 {
+			atomic.AddInt64(&Sub, -1)
+		}
 	})
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
 		atomic.AddInt64(&ConnSize, 1)
@@ -179,7 +182,6 @@ func Subscribe(client mqtt.Client, req model.Request, index int) {
 				req.SubTopic = fmt.Sprintf(topicArr[0]+req.Node+"%0"+length+"d"+topicArr[2], index)
 			}
 		}
-		//fmt.Println("sub", req.SubTopic)
 		subToken := client.Subscribe(req.SubTopic, byte(req.Qos), func(client mqtt.Client, message mqtt.Message) {
 			//fmt.Println("message", message.MessageID())
 			atomic.AddInt64(&SubMsgSize, 1)
