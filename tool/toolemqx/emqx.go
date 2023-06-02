@@ -26,8 +26,17 @@ var Sub int64
 var SubFail int64
 var PubIndex int64
 var LastErr error
+var ClientRateList chan int
 
 func init() {
+}
+
+func Init(req model.Request) {
+	// 初始化chanList
+	ClientRateList = make(chan int, req.ClientRate)
+	for i := 0; i < req.ClientRate; i++ {
+		ClientRateList <- i
+	}
 }
 
 func Conn(ctx context.Context, req model.Request, index int64) {
@@ -67,6 +76,8 @@ func Conn(ctx context.Context, req model.Request, index int64) {
 		}
 	})
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
+		// 连接成功将数据放回chan,便于下一个连接使用
+		ClientRateList <- 1
 		atomic.AddInt64(&ConnSize, 1)
 		go Subscribe(client, req, int(index))
 		go Publish(client, &req)

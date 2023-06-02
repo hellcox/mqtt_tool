@@ -1,23 +1,24 @@
 package model
 
 type Request struct {
-	Action       string // 操作
-	Host         string // HOST
-	Topic        string
-	LocalAddress string // 指定网卡IP
-	ClientCount  int    // 客户端总数量
-	ClientRate   int    // 创建客户端速率
-	PubRate      int    // 发布消息速率
-	PubMsgCount  int    // 发布消息总数量，达到后停止发布
-	UseSsl       bool   // 是否开启SSL
-	Qos          int    // Qos 等级
-	Version      int    // mqtt 版本，默认3
-	Port         int    // 端口号
-	PubTopic     string
-	SubTopic     string
-	Node         string
-	IsStartPub   bool // 是否已经开始PUB
-	MsgSize      int  // 自动生成消息的长度
+	Action           string // 操作
+	Host             string // HOST
+	Topic            string
+	LocalAddress     string // 指定网卡IP
+	ClientCount      int    // 客户端总数量
+	ClientRate       int    // 创建客户端速率
+	PubRate          int    // 发布消息速率
+	PubMsgCount      int    // 发布消息总数量，达到后停止发布
+	UseSsl           bool   // 是否开启SSL
+	Qos              int    // Qos 等级
+	Version          int    // mqtt 版本，默认3
+	Port             int    // 端口号
+	PubTopic         string
+	SubTopic         string
+	Node             string
+	IsStartPub       bool // 是否已经开始PUB
+	IsStartConnCheck bool // 是否开启连接监测
+	MsgSize          int  // 自动生成消息的长度
 }
 
 type NormalMsg struct {
