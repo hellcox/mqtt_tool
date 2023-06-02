@@ -30,7 +30,7 @@ var LastErr error
 func init() {
 }
 
-func Conn(ctx context.Context, req model.Request, index int64) (mqtt.Client, error) {
+func Conn(ctx context.Context, req model.Request, index int64) {
 	idx := fmt.Sprintf("%s-%010d", req.Node, index)
 	host := fmt.Sprintf("%s:%d", req.Host, req.Port)
 	if req.UseSsl {
@@ -75,20 +75,20 @@ func Conn(ctx context.Context, req model.Request, index int64) (mqtt.Client, err
 	token := c.Connect()
 	token.Wait()
 	if token.Error() != nil {
+		fmt.Println(token.Error())
 		LastErr = token.Error()
-		return nil, token.Error()
+		// 继续调用尝试连接
+		time.Sleep(1 * time.Second)
+		Conn(context.Background(), req, index)
+		return
 	}
-	return c, nil
 }
 
 func Start(ctx context.Context, req model.Request, index int64) {
 	if req.Host == "" {
 		panic("参数错误：host")
 	}
-
-	client, err := Conn(ctx, req, index)
-	_, _ = err, client
-
+	Conn(ctx, req, index)
 }
 
 func Publish(client mqtt.Client, req *model.Request) {
@@ -188,6 +188,7 @@ func Subscribe(client mqtt.Client, req model.Request, index int) {
 		})
 		subToken.Wait()
 		if subToken.Error() != nil {
+			fmt.Println(subToken.Error())
 			LastErr = subToken.Error()
 			atomic.AddInt64(&SubFail, 1)
 			return
