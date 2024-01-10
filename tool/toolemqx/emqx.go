@@ -41,11 +41,11 @@ func Init(req model.Request) {
 
 func Conn(ctx context.Context, req model.Request, index int64) {
 	//idx := fmt.Sprintf("%s-%010d", req.Node, index)
-	host := fmt.Sprintf("%s:%d", req.Host, req.Port)
-	if req.UseSsl {
-		host = "ssl://" + host
-	}
-	opts := mqtt.NewClientOptions().AddBroker(host)
+	//host := fmt.Sprintf("%s:%d", req.Host, req.Port)
+	//if req.UseSsl {
+	//	host =
+	//}
+	opts := mqtt.NewClientOptions().AddBroker("ssl://api-dev-ap-swoole-cluster2.meross.com:443")
 	opts.SetClientID("fmware:2012316814712100031634298f1f2ade_ATyf7vIBygFZzfKI")
 	opts.SetUsername("34:29:8f:1f:2a:de")
 	opts.SetPassword("10500882_cb9b34f155590616a367e993feeae615")
