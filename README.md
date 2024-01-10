@@ -54,9 +54,21 @@
 
 模拟设备，每个链接订阅一个topic
 
-go run main.go -cr 20 -cc 500 -h host.docker.internal -p 1883 -addr 172.18.0.3 -st /appliance/{32-i}/subscribe -n 123
+go run main.go -cr 20 -cc 500 -h host.docker.internal -p 1883 -addr 172.18.0.7 -st /appliance/{32-i}/subscribe -n 123
 
 模拟APP，每个链接向5个设备发布消息
 
 go run main.go -cr 10 -cc 100 -h host.docker.internal -p 1883 -addr 172.18.0.3 -pt /appliance/{123-32-i-5}/subscribe -pr 500
+
+go run main.go -cr 20 -cc 500 -h 127.0.0.1 -p 1883 -st /appliance/2012316814712100031634298f1f2ade/subscribe -n 123
+
+go run main.go -cr 10 -cc 100 -h 127.0.0.1 -p 1883  -pt /appliance/2012316814712100031634298f1f2ade/publish -pr 500
+go run main.go -cr 10 -cc 100 -h 127.0.0.1 -p 1883  -pt /appliance/2012316814712100031634298f1f2ade/subscribe -pr 500
+go run main.go -cr 10 -cc 100 -h 127.0.0.1 -p 1883  -pt cloud/xx/test -pr 500
+go run main.go -cr 10 -cc 100 -h 127.0.0.1 -p 1883  -pt /app/xx/test -pr 500
+go run main.go -cr 10 -cc 100 -h 127.0.0.1 -p 1883  -pt v1/p-f-c/stat -pr 500
+go run main.go -cr 10 -cc 100 -h 127.0.0.1 -p 1883  -pt v1/p-f-c/ack -pr 500
+go run main.go -cr 10 -cc 100 -h 127.0.0.1 -p 1883  -pt v1/p-f-c/noack -pr 500
+go run main.go -cr 10 -cc 100 -h 127.0.0.1 -p 1883  -pt v1/p-f-c/major -pr 500
+
 
