@@ -40,7 +40,7 @@ func Init(req model.Request) {
 }
 
 func Conn(ctx context.Context, req model.Request, index int64) {
-	idx := fmt.Sprintf("%s-%010d", req.Node, index)
+	//idx := fmt.Sprintf("%s-%010d", req.Node, index)
 	host := fmt.Sprintf("%s:%d", req.Host, req.Port)
 	if req.UseSsl {
 		host = "ssl://" + host
