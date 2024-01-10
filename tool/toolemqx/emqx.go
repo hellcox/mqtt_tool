@@ -46,9 +46,9 @@ func Conn(ctx context.Context, req model.Request, index int64) {
 		host = "ssl://" + host
 	}
 	opts := mqtt.NewClientOptions().AddBroker(host)
-	opts.SetClientID("tool-" + idx)
-	opts.SetUsername("emqx" + idx)
-	opts.SetPassword("public" + idx)
+	opts.SetClientID("fmware:2012316814712100031634298f1f2ade_ATyf7vIBygFZzfKI")
+	opts.SetUsername("34:29:8f:1f:2a:de")
+	opts.SetPassword("10500882_cb9b34f155590616a367e993feeae615")
 	opts.SetDefaultPublishHandler(func(c mqtt.Client, message mqtt.Message) {
 		fmt.Println("PublishHandler", message)
 	})
